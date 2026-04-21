@@ -147,39 +147,48 @@ function buildGraphSvg(analysis) {
   const axisY = toY(0);
   const axisX = toX(0);
   const path = points.map((point, index) => `${index === 0 ? "M" : "L"}${toX(point.q)} ${toY(point.val)}`).join(" ");
+  const isDarkMode = document.body.classList.contains("dark-mode");
+  const tickColor = isDarkMode ? "#f4f8ff" : "#4e5f77";
+  const gridColor = isDarkMode ? "rgba(244,248,255,0.18)" : "rgba(23,36,53,0.16)";
+  const axisColor = isDarkMode ? "rgba(244,248,255,0.7)" : "rgba(23,36,53,0.65)";
+  const curveColor = isDarkMode ? "#ff8d5e" : "#b4472d";
+  const vertexColor = isDarkMode ? "#5ac98f" : "#1e7d4c";
+  const rootColor = isDarkMode ? "#ffb08d" : "#9f2b1f";
+  const backgroundColor = isDarkMode ? "#000000" : "#ffffff";
 
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Gráfico da função quadrática">`;
+  svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="${backgroundColor}"/>`;
 
   for (let i = 0; i <= 6; i += 1) {
     const x = padX + (graphW * i) / 6;
     const q = minX + ((maxX - minX) * i) / 6;
-    svg += `<line x1="${x}" y1="${padY}" x2="${x}" y2="${height - padY}" stroke="rgba(23,36,53,0.16)" stroke-width="1"/>`;
-    svg += `<text x="${x}" y="${height - 10}" fill="#4e5f77" text-anchor="middle" font-size="11">${formatNumber(q, 1)}</text>`;
+    svg += `<line x1="${x}" y1="${padY}" x2="${x}" y2="${height - padY}" stroke="${gridColor}" stroke-width="1"/>`;
+    svg += `<text x="${x}" y="${height - 10}" fill="${tickColor}" text-anchor="middle" font-size="11">${formatNumber(q, 1)}</text>`;
   }
 
   for (let i = 0; i <= 4; i += 1) {
     const y = padY + (graphH * i) / 4;
     const val = maxY - ((maxY - minY) * i) / 4;
-    svg += `<line x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" stroke="rgba(23,36,53,0.16)" stroke-width="1"/>`;
-    svg += `<text x="${padX - 8}" y="${y + 4}" fill="#4e5f77" text-anchor="end" font-size="11">${formatNumber(val, 0)}</text>`;
+    svg += `<line x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" stroke="${gridColor}" stroke-width="1"/>`;
+    svg += `<text x="${padX - 8}" y="${y + 4}" fill="${tickColor}" text-anchor="end" font-size="11">${formatNumber(val, 0)}</text>`;
   }
 
   if (axisY >= padY && axisY <= height - padY) {
-    svg += `<line x1="${padX}" y1="${axisY}" x2="${width - padX}" y2="${axisY}" stroke="rgba(23,36,53,0.65)" stroke-width="2"/>`;
+    svg += `<line x1="${padX}" y1="${axisY}" x2="${width - padX}" y2="${axisY}" stroke="${axisColor}" stroke-width="2"/>`;
   }
 
   if (axisX >= padX && axisX <= width - padX) {
-    svg += `<line x1="${axisX}" y1="${padY}" x2="${axisX}" y2="${height - padY}" stroke="rgba(23,36,53,0.65)" stroke-width="2"/>`;
+    svg += `<line x1="${axisX}" y1="${padY}" x2="${axisX}" y2="${height - padY}" stroke="${axisColor}" stroke-width="2"/>`;
   }
 
-  svg += `<path d="${path}" fill="none" stroke="#b4472d" stroke-width="3.5"/>`;
-  svg += `<circle cx="${toX(qv)}" cy="${toY(analysis.fv)}" r="4.8" fill="#1e7d4c"/>`;
-  svg += `<text x="${toX(qv)}" y="${toY(analysis.fv) - 9}" fill="#1e7d4c" text-anchor="middle" font-size="11">V(${formatNumber(qv, 2)}, ${formatNumber(analysis.fv, 2)})</text>`;
+  svg += `<path d="${path}" fill="none" stroke="${curveColor}" stroke-width="3.5"/>`;
+  svg += `<circle cx="${toX(qv)}" cy="${toY(analysis.fv)}" r="4.8" fill="${vertexColor}"/>`;
+  svg += `<text x="${toX(qv)}" y="${toY(analysis.fv) - 9}" fill="${vertexColor}" text-anchor="middle" font-size="11">V(${formatNumber(qv, 2)}, ${formatNumber(analysis.fv, 2)})</text>`;
 
   if (roots.length > 0 && axisY >= padY && axisY <= height - padY) {
     roots.forEach((root) => {
-      svg += `<circle cx="${toX(root)}" cy="${axisY}" r="4.2" fill="#9f2b1f"/>`;
-      svg += `<text x="${toX(root)}" y="${axisY - 8}" fill="#9f2b1f" text-anchor="middle" font-size="10">${formatNumber(root, 2)}</text>`;
+      svg += `<circle cx="${toX(root)}" cy="${axisY}" r="4.2" fill="${rootColor}"/>`;
+      svg += `<text x="${toX(root)}" y="${axisY - 8}" fill="${rootColor}" text-anchor="middle" font-size="10">${formatNumber(root, 2)}</text>`;
     });
   }
 
@@ -387,7 +396,7 @@ function setupTheme() {
   toggle.addEventListener("click", () => {
     const isDark = document.body.classList.toggle("dark-mode");
     localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
-    toggle.textContent = isDark ? "Modo claro" : "Modo escuro";
+    window.location.reload();
   });
 }
 
