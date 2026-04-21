@@ -44,7 +44,7 @@ body {
     radial-gradient(circle at 82% 10%, rgba(255, 141, 94, 0.14), transparent 24%),
     radial-gradient(circle at 82% 82%, rgba(26, 115, 232, 0.12), transparent 30%),
     linear-gradient(150deg, var(--bg-a), var(--bg-b));
-  padding: 28px 14px;
+  padding: 18px 14px;
 }
 
 body::before {
@@ -89,13 +89,13 @@ body.dark-mode .history-box {
 }
 
 .hero {
-  padding: 24px;
+  padding: 18px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 240px;
   grid-template-areas:
     "copy toggle"
     "copy visual";
-  gap: 12px 24px;
+  gap: 8px 18px;
   align-items: start;
   overflow: hidden;
   position: relative;
@@ -216,7 +216,7 @@ body.dark-mode .example-title {
 
 .hero-mascot {
   width: min(220px, 100%);
-  margin: 20px 0 0;
+  margin: 8px 0 0;
   display: grid;
   place-items: center;
   animation: float-mascot 3.8s ease-in-out infinite, glow-mascot 6s ease-in-out infinite;
@@ -544,6 +544,24 @@ input {
   background: var(--surface);
   color: var(--ink);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input::placeholder {
+  color: rgba(112, 128, 151, 0.88);
+}
+
+body.dark-mode input::placeholder {
+  color: rgba(204, 218, 240, 0.8);
+}
+
+input.input-error {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.18);
+}
+
+body.dark-mode input.input-error {
+  border-color: #ff9a9a;
+  box-shadow: 0 0 0 3px rgba(255, 154, 154, 0.22);
 }
 
 body.dark-mode input {
@@ -875,6 +893,7 @@ svg {
   }
 
   .hero {
+    padding: 14px;
     grid-template-columns: 1fr;
     grid-template-areas:
       "toggle"
@@ -898,7 +917,7 @@ svg {
 
   .hero-mascot {
     width: min(170px, 100%);
-    margin: 12px auto 0;
+    margin: 6px auto 0;
   }
 
   .mascot-body {
@@ -981,7 +1000,7 @@ svg {
 
   .hero-mascot {
     width: 180px;
-    margin-top: 8px;
+    margin-top: 4px;
   }
 
   h1 {
@@ -1012,7 +1031,7 @@ svg {
   }
 
   .hero-mascot {
-    margin-top: 24px;
+    margin-top: 8px;
   }
 
   h1 {

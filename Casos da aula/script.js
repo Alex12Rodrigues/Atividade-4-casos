@@ -326,6 +326,39 @@ function readCaseCoefficients(caseData) {
   };
 }
 
+function clearInputValidation(caseData) {
+  [caseData.aId, caseData.bId, caseData.cId].forEach((inputId) => {
+    const input = byId(inputId);
+    input.classList.remove("input-error");
+    input.removeAttribute("aria-invalid");
+  });
+}
+
+function markInvalidNumericInputs(caseData, values) {
+  const fieldMap = [
+    { id: caseData.aId, value: values.a },
+    { id: caseData.bId, value: values.b },
+    { id: caseData.cId, value: values.c }
+  ];
+
+  let focused = false;
+
+  fieldMap.forEach((field) => {
+    if (Number.isFinite(field.value)) {
+      return;
+    }
+
+    const input = byId(field.id);
+    input.classList.add("input-error");
+    input.setAttribute("aria-invalid", "true");
+
+    if (!focused) {
+      input.focus();
+      focused = true;
+    }
+  });
+}
+
 function saveHistoryEntry(caseData, analysis) {
   if (suppressHistory || !analysis.valid) {
     return;
@@ -350,8 +383,14 @@ function saveHistoryEntry(caseData, analysis) {
 }
 
 function calculateCase(caseData) {
+  clearInputValidation(caseData);
   const values = readCaseCoefficients(caseData);
   const analysis = analyzeQuadratic(values.a, values.b, values.c, caseData.kind);
+
+  if (!analysis.valid && analysis.error.includes("numéricos")) {
+    markInvalidNumericInputs(caseData, values);
+  }
+
   byId(caseData.outputId).innerHTML = renderAnalysisCard(caseData, analysis);
 
   if (analysis.valid) {
