@@ -77,6 +77,24 @@ body {
   border-color: var(--accent);
 }
 
+.repo-link {
+  display: inline;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #1a73e8;
+  text-decoration: underline;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.repo-link:hover {
+  color: #1558b0;
+}
+
 .eyebrow {
   margin: 0;
   font-family: "JetBrains Mono", monospace;
