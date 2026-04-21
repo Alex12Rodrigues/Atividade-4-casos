@@ -1,5 +1,6 @@
 const HISTORY_KEY = "quadratic_cases_history";
 const THEME_KEY = "quadratic_theme";
+const UI_STATE_KEY = "quadratic_ui_state";
 
 const CASES = [
   { panelId: "caso-1", outputId: "output-caso-1", buttonId: "btn-caso-1", clearButtonId: "btn-clear-caso-1", explainId: "explain-caso-1", aId: "caso-1-a", bId: "caso-1-b", cId: "caso-1-c", id: "CASO 1", name: "R(q)", kind: "receita" },
@@ -37,6 +38,7 @@ const CASE_EXAMPLES = {
 
 let historyEntries = [];
 let suppressHistory = false;
+let lastCalculatedPanelId = null;
 
 function byId(id) {
   return document.getElementById(id);
@@ -247,6 +249,75 @@ function showPanel(panelId) {
   });
 }
 
+function getActivePanelId() {
+  const activeButton = document.querySelector(".tab-btn.active");
+  return activeButton ? activeButton.dataset.target : "caso-1";
+}
+
+function saveUiState() {
+  const coefficients = {};
+
+  CASES.forEach((caseData) => {
+    coefficients[caseData.panelId] = {
+      a: byId(caseData.aId).value,
+      b: byId(caseData.bId).value,
+      c: byId(caseData.cId).value
+    };
+  });
+
+  const uiState = {
+    activePanelId: getActivePanelId(),
+    lastCalculatedPanelId,
+    coefficients
+  };
+
+  localStorage.setItem(UI_STATE_KEY, JSON.stringify(uiState));
+}
+
+function restoreUiState() {
+  const raw = localStorage.getItem(UI_STATE_KEY);
+  if (!raw) {
+    return false;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    localStorage.removeItem(UI_STATE_KEY);
+    return false;
+  }
+
+  if (parsed && parsed.coefficients) {
+    CASES.forEach((caseData) => {
+      const values = parsed.coefficients[caseData.panelId];
+      if (!values) {
+        return;
+      }
+
+      byId(caseData.aId).value = values.a ?? "";
+      byId(caseData.bId).value = values.b ?? "";
+      byId(caseData.cId).value = values.c ?? "";
+    });
+  }
+
+  const panelToShow = parsed && parsed.activePanelId ? parsed.activePanelId : "caso-1";
+  showPanel(panelToShow);
+
+  if (parsed && parsed.lastCalculatedPanelId) {
+    const caseData = CASES.find((item) => item.panelId === parsed.lastCalculatedPanelId);
+    if (caseData) {
+      suppressHistory = true;
+      calculateCase(caseData);
+      suppressHistory = false;
+      lastCalculatedPanelId = caseData.panelId;
+    }
+  }
+
+  localStorage.removeItem(UI_STATE_KEY);
+  return true;
+}
+
 function readCaseCoefficients(caseData) {
   return {
     a: Number.parseFloat(byId(caseData.aId).value),
@@ -282,6 +353,11 @@ function calculateCase(caseData) {
   const values = readCaseCoefficients(caseData);
   const analysis = analyzeQuadratic(values.a, values.b, values.c, caseData.kind);
   byId(caseData.outputId).innerHTML = renderAnalysisCard(caseData, analysis);
+
+  if (analysis.valid) {
+    lastCalculatedPanelId = caseData.panelId;
+  }
+
   saveHistoryEntry(caseData, analysis);
 }
 
@@ -293,6 +369,10 @@ function clearCase(caseData) {
 
   if (byId(caseData.explainId)) {
     byId(caseData.explainId).textContent = "Selecione um exemplo para preencher automaticamente e calcular.";
+  }
+
+  if (lastCalculatedPanelId === caseData.panelId) {
+    lastCalculatedPanelId = null;
   }
 }
 
@@ -396,6 +476,7 @@ function setupTheme() {
   toggle.addEventListener("click", () => {
     const isDark = document.body.classList.toggle("dark-mode");
     localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+    saveUiState();
     window.location.reload();
   });
 }
@@ -434,4 +515,7 @@ initCaseButtons();
 initExampleButtons();
 loadHistory();
 byId("btnClearHistory").addEventListener("click", clearHistory);
-showPanel("caso-1");
+
+if (!restoreUiState()) {
+  showPanel("caso-1");
+}
